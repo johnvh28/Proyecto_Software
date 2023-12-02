@@ -1,0 +1,30 @@
+{
+    "name": "jrios/proyecto_store",
+    "description": "Proyecto de ingeneria de software",
+    "authors": [
+        {
+            "name": "Jhon Varela",
+            "email": "enmanuelvh2002@gmail.com"
+        }
+    ],
+    "require": {
+        "intervention/image": "^2.7",
+        "dompdf/dompdf": "^2.0",
+        "phpmailer/phpmailer": "^6.8",
+        "whichbrowser/parser": "^2.1",
+        "ua-parser/uap-php": "^3.9",
+        "phpoffice/phpspreadsheet": "^1.29",
+        "botman/botman": "^2.3",
+        "botman/driver-web": "^1.5",
+        "symfony/cache": "3.2",
+        "botman/driver-telegram": "^2.0",
+        "tecnickcom/tcpdf": "^6.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "model\\":"./model",
+            "MVC\\":"./",
+            "controller\\":"./controller"
+        }
+    }
+}
