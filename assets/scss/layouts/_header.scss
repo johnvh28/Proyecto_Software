@@ -222,7 +222,7 @@
 					width: 100%;
 				}
 				button{
-					background-color:#FF0000;
+					background-color:#3B657A;
 					border: medium none;
 					color: #fff;
 					height: 100%;
@@ -244,7 +244,7 @@
 			padding-bottom: 10px;
 
 			.aa-cart-link{
-				color: #FF0000;
+				color: #3B657A;
 			    font-size: 22px;
 			    position: relative;
 			    width: 120px;
@@ -261,9 +261,9 @@
 				}
 				.aa-cart-notify{
 					background-color: #fff;
-					border: 1px solid #FF0000;
+					border: 1px solid #3B657A;
 					border-radius: 50%;
-					color: #FF0000;
+					color: #3B657A;
 					font-size: 12px;
 					font-weight: bold;
 					padding: 2px 9px;
@@ -293,7 +293,7 @@
 					
 					&:after{
 						border-color: rgba(255, 102, 102, 0);
-						border-top-color:#FF0000;
+						border-top-color:#3B657A;
 						border-width: 5px;
 						margin-left: -5px;
 					}
@@ -395,7 +395,7 @@
 							@include transition(all 0.5s);
 							&:hover,
 							&:focus{
-								border-color: #FF0000;
+								border-color: #3B657A;
 								color: #333;
 							}
 						}

@@ -4,6 +4,7 @@ require_once 'vendor/autoload.php';
 use GuzzleHttp\Psr7\Request;
 use Intervention\Image\ImageManagerStatic as Image;
 use Intervention\Image\ImageManager;
+
 class PageController
 {
     public function __construct()
@@ -18,8 +19,7 @@ class PageController
     {
         $Productos = new Productos_Model();
         $Categorias['productos'] = $Productos->CategoriasSubcategorias();
-        $productos['camisas']=$Productos->MostrarProductosPagina();
-        
+        $productos['camisas'] = $Productos->MostrarProductosPagina();
         require_once "view/page/index.php";
     }
 
@@ -32,32 +32,83 @@ class PageController
     {
         $Productos = new Productos_Model();
         $Categorias['productos'] = $Productos->CategoriasSubcategorias();
-  
+
         require_once "view/page/Contacto/Conctato.php";
     }
 
     public function productos()
     {
         $Productos = new Productos_Model();
-        $productos['camisas']=$Productos->MostrarProductosPagina();
+        $productos['camisas'] = $Productos->MostrarProductosPagina();
         $Categorias['productos'] = $Productos->CategoriasSubcategorias();
-        $color['color']=$Productos->selectcolor();
-        $talla['talla']=$Productos->selectmodelo();
-        $manga['manga']=$Productos->selectmanga();
-        $modelo['modelo']=$Productos->selectmodelo();
+        $color['color'] = $Productos->selectcolor();
+        $talla['talla'] = $Productos->selectmodelo();
+        $manga['manga'] = $Productos->selectmanga();
+        $modelo['modelo'] = $Productos->selectmodelo();
         require_once "view/page/Productos/Productos.php";
     }
     public function carrito()
     {
-        $Productos = new Productos_Model();
-        $Categorias['productos'] = $Productos->CategoriasSubcategorias();
+        session_start();
+        if (isset($_SESSION['nombre'])) {
+            $Productos = new Productos_Model();
+            $Categorias['productos'] = $Productos->CategoriasSubcategorias();
+            require_once "view/page/Carrito/Carrito.php";
+        } else {
+            header("Location:index.php?c=page");
+        }
     }
     public function checkout()
     {
-        $Productos = new Productos_Model();
-        $Categorias['productos'] = $Productos->CategoriasSubcategorias();
+        session_start();
+        if (isset($_SESSION['nombre'])) {
+            $Productos = new Productos_Model();
+            $Selects = new Persona_model();
+            $Municipios['Municipios'] = $Selects->ObtenerDepartamentosConMunicipios();
+            $Categorias['productos'] = $Productos->CategoriasSubcategorias();
+            $direccion['direccion'] = $Selects->DireccionCliente($_SESSION['IdPersona']);
+            require_once "view/page/Checkout/Checkout.php";
+        } else {
+            header("Location:index.php?c=page");
+        }
     }
-   
+    public function pedido()
+    {
+        session_start();
+        $Venta = new Venta_Model();
+        $IdCliente = $_SESSION['IdCliente'];
+        $total = $this->calcularTotalCarrito($_SESSION['carrito']);
+        $IdVenta = $Venta->InsertarPedido($IdCliente, $total, 0, $total, 1);
+     
+        foreach ($_SESSION['carrito'] as $producto) {
+            $Venta->InsertarDetallePedido($IdVenta, $producto['id'], $producto['cantidad'], $producto['precio']);
+        }
+        // Check if the 'flexRadioDefault' key is set in the $_POST array
+        if (isset($_POST['flexRadioDefault'])) {
+            $selectedOption = $_POST['flexRadioDefault'];
+            if ($selectedOption === "Entrega local") {
+            } else {
+                $municipio = $_POST['municipio'];
+                $punto=$_POST['punto'];
+                $direccion=$_POST['direccion'];
+                $Selects = new Persona_model();
+                $IdDireccion=$Selects->InsertarPuntoReferencia($punto,$direccion,$municipio);
+                $Venta->InsertarDireccionPedido($IdDireccion,$IdVenta,1);
+            }
+        }
+        unset($_SESSION['carrito']);
+        $_SESSION['tipo'] = "success";
+        $_SESSION["mensaje"] = "Se ha realizado el pedido correctamente";
+        header("Location:index.php?c=page");
+    }
+    public function calcularTotalCarrito($carrito)
+    {
+        $total = 0;
+        foreach ($carrito as $producto) {
+            $total += $producto['precio'] * $producto['cantidad'];
+        }
+        return $total;
+    }
     public function blog()
     {
         $Productos = new Productos_Model();
@@ -99,9 +150,9 @@ class PageController
     public function registro()
     {
         $Productos = new Productos_Model();
-        
+
         $Selects = new Persona_model();
-     
+
         $Genero['Generos'] = $Selects->SelectGenero();
         $Municipios['Municipios'] = $Selects->ObtenerDepartamentosConMunicipios();
         $Pais['paises'] = $Selects->pais();
@@ -134,16 +185,16 @@ class PageController
             $fecha_nacimiento = $_POST['fecha_nacimiento'];
             $persona->InsertarPersonaNatural($IdPersona, $nacionalidad, $id_genero, $apellido, $tipoidentificacion, $identificacion, $fecha_nacimiento);
             /** Atributos colaborador */
-           
-            $Colaborador->InsertarCliente($IdPersona,$tipo="Normal",1);
+
+            $Colaborador->InsertarCliente($IdPersona, $tipo = "Normal", 1);
             $usuario = new Usuarios_Model();
-            $Usuarios=$usuario->InsertarUsuario(2,$IdPersona,$correo,0);
-            $usuario->EnviarCodigoVerificacion($correo,$nombre,$apellido,$Usuarios['Codigo']);
-            $usuario->InsertarDetalleUsuario($Usuarios['Id'],$contraseña);
+            $Usuarios = $usuario->InsertarUsuario(2, $IdPersona, $correo, 0);
+            $usuario->EnviarCodigoVerificacion($correo, $nombre, $apellido, $Usuarios['Codigo']);
+            $usuario->InsertarDetalleUsuario($Usuarios['Id'], $contraseña);
             session_start();
             $_SESSION['tipo'] = "success";
             $_SESSION["mensaje"] = "Se ha enviado un codigo de verficacion";
-            header("Location:index.php?c=page&a=verificacion&cliente=".$correo);
+            header("Location:index.php?c=page&a=verificacion&cliente=" . $correo);
         } else {
             echo "Error: Solo se permiten envíos por POST";
             exit;
@@ -152,17 +203,17 @@ class PageController
     public function verificacion()
     {
         $Productos = new Productos_Model();
-        $Categorias['productos'] = $Productos->CategoriasSubcategorias(); 
+        $Categorias['productos'] = $Productos->CategoriasSubcategorias();
         require_once "view/page/Auth/verficacionClientes.php";
     }
     public function VerificarUsuario()
     {
         session_start();
-        $correo=$_POST['correo'];
-        $codigo=$_POST['codigo'];
+        $correo = $_POST['correo'];
+        $codigo = $_POST['codigo'];
         $usuario = new Usuarios_Model();
         $verificar = $usuario->verificacion($correo, $codigo);
-   
+
         if (!$verificar) {
             $error = "El código de verificación es incorrecto. Por favor, inténtalo nuevamente.";
 
@@ -174,8 +225,128 @@ class PageController
             $_SESSION['mensaje'] = "Se ha verificado correctamente";
             header("Location: index.php?c=page");
         }
-
     }
+    public function eliminarProductoCarrito()
+    {
+        if (isset($_GET['id'])) {
+            session_start();
+            $productoId = $_GET['id'];
+
+            if (isset($_SESSION['carrito'][$productoId])) {
+                // Eliminar el producto del carrito
+                unset($_SESSION['carrito'][$productoId]);
+            }
+
+            // Redireccionar a la página del carrito o donde desees después de eliminar
+            header("Location: index.php?c=page&a=productos");
+        }
+    }
+    public function eliminarProductoCarritos()
+    {
+        if (isset($_GET['id'])) {
+            session_start();
+            $productoId = $_GET['id'];
+
+            if (isset($_SESSION['carrito'][$productoId])) {
+                // Eliminar el producto del carrito
+                unset($_SESSION['carrito'][$productoId]);
+            }
+
+            // Redireccionar a la página del carrito o donde desees después de eliminar
+            header("Location: index.php?c=page&a=carrito");
+        }
+    }
+    public function filtros()
+    {
+        if (isset($_GET['id'])) {
+            $Id = $_GET['id'];
+            $Productos = new Productos_Model();
+            $productos['camisas'] = $Productos->MostrarProductossubcategorias($Id);
+            $Categorias['productos'] = $Productos->CategoriasSubcategorias();
+            $color['color'] = $Productos->selectcolor();
+            $talla['talla'] = $Productos->selectmodelo();
+            $manga['manga'] = $Productos->selectmanga();
+            $modelo['modelo'] = $Productos->selectmodelo();
+            require_once "view/page/Productos/Productos.php";
+        }
+    }
+    public function mangas()
+    {
+        if (isset($_GET['id'])) {
+            $Id = $_GET['id'];
+            $Productos = new Productos_Model();
+            $productos['camisas'] = $Productos->MostrarProductosMangas($Id);
+            $Categorias['productos'] = $Productos->CategoriasSubcategorias();
+            $color['color'] = $Productos->selectcolor();
+            $talla['talla'] = $Productos->selectmodelo();
+            $manga['manga'] = $Productos->selectmanga();
+            $modelo['modelo'] = $Productos->selectmodelo();
+            require_once "view/page/Productos/Productos.php";
+        }
+    }
+    public function colores()
+    {
+        if (isset($_GET['id'])) {
+            $Id = $_GET['id'];
+            $Productos = new Productos_Model();
+            $productos['camisas'] = $Productos->MostrarProductosColores($Id);
+            $Categorias['productos'] = $Productos->CategoriasSubcategorias();
+            $color['color'] = $Productos->selectcolor();
+            $talla['talla'] = $Productos->selectmodelo();
+            $manga['manga'] = $Productos->selectmanga();
+            $modelo['modelo'] = $Productos->selectmodelo();
+            require_once "view/page/Productos/Productos.php";
+        }
+    }
+    public function modelos()
+    {
+        if (isset($_GET['id'])) {
+            $Id = $_GET['id'];
+            $Productos = new Productos_Model();
+            $productos['camisas'] = $Productos->MostrarProductosColores($Id);
+            $Categorias['productos'] = $Productos->CategoriasSubcategorias();
+            $color['color'] = $Productos->selectcolor();
+            $talla['talla'] = $Productos->selectmodelo();
+            $manga['manga'] = $Productos->selectmanga();
+            $modelo['modelo'] = $Productos->selectmodelo();
+            require_once "view/page/Productos/Productos.php";
+        }
+    }
+
+    public function carritos()
+    {
+        if (isset($_GET['id'])) {
+            session_start();
+            $productoId = $_GET['id'];
+            $Productos = new Productos_Model();
+
+            if (!isset($_SESSION['carrito'])) {
+                $_SESSION['carrito'] = array();
+            }
+
+            $producto = $Productos->obtenerDetallesProducto($productoId);
+
+            if ($producto) {
+
+                if (isset($_SESSION['carrito'][$productoId])) {
+
+                    $_SESSION['carrito'][$productoId]['cantidad']++;
+                } else {
+
+                    $_SESSION['carrito'][$productoId] = array(
+                        'id' => $productoId,
+                        'foto' => $producto['foto'],
+                        'nombre' => $producto['nombre'],
+                        'precio' => $producto['precio'],
+                        'cantidad' => 1,
+
+                    );
+                }
+                header("Location:index.php?c=page&a=productos");
+            }
+        }
+    }
+
     public function SubirImagen($archivo)
     {
         $carpeta = "assets/img/fotos_Perfil/";

@@ -171,7 +171,7 @@ require_once "view/include/header_page.php";
                       <li>
                         <figure>
                           <a class="aa-product-img" href="#"><img src="assets/img/productos/<?php echo $productos['foto'] ?>" alt="polo shirt img"></a>
-                          <a class="aa-add-card-btn" href="#"><span class="fa fa-shopping-cart"></span>Agregar al carro</a>
+                          <a class="aa-add-card-btn" href="index.php?c=page&a=carritos&id=<?php echo $productos['id']; ?>"><span class="fa fa-shopping-cart"></span>Agregar al carro</a>
                           <figcaption>
                             <h4 class="aa-product-title"><a href="#"><?php echo $productos['nombre'] ?></a></h4>
                             <span class="aa-product-price">C$ <?php echo $productos['precio'] ?></< /span>

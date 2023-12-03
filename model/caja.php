@@ -692,24 +692,7 @@ class Caja_Model
         // Si no hay resultados, devolver un array vacío o lanzar una excepción según sea necesario.
 
     }
-    public function crearAperturaCaja($id_caja, $id_trabajador, $estado)
-    {
-        // Escapar valores para evitar inyección SQL
-        $id_caja = $this->db->real_escape_string($id_caja);
-        $id_trabajador = $this->db->real_escape_string($id_trabajador);
-        $estado = $this->db->real_escape_string($estado);
-
-        // Insertar en tabla "apertura_caja"
-        $sql_apertura_caja = "INSERT INTO apertura_caja (id_caja, id_trabajador, estado) 
-                              VALUES ('$id_caja', '$id_trabajador',  '$estado' )";
-        $this->db->query($sql_apertura_caja);
-
-        // Obtener el último ID generado en la tabla "apertura_caja"
-        $last_id = $this->db->insert_id;
-
-        // Retornar el ID de la apertura de caja creada
-        return $last_id;
-    }
+   
     public function guardarDetalleAperturaCaja($id_apertura_caja, $id_moneda, $monto, $total)
     {
         // Escapar valores para evitar inyección SQL
@@ -740,15 +723,15 @@ class Caja_Model
 
 
 
-    public function InsertarAperturaCaja($id_caja, $id_trabajador,$id_autorizado_por,$estado)
+    public function InsertarAperturaCaja($id_caja, $id_trabajador,$estado)
     {
         $persona = new Persona_model();
         $id = $persona->ObtenerNuevoId($tabla = "apertura_caja");
         $id_caja = filter_var($id_caja, FILTER_VALIDATE_INT);
         $id_trabajador = filter_var($id_trabajador, FILTER_VALIDATE_INT);
-        $id_autorizado_por = filter_var($id_autorizado_por, FILTER_VALIDATE_INT);
+   
         $estado = filter_var($estado, FILTER_VALIDATE_INT);
-        $sql = "INSERT INTO `apertura_caja`(`id`,`id_caja`,`id_trabajador`,`id_autorizado_por`,`fecha_apertura`,`estado`) VALUES ($id,'$id_caja','$id_trabajador','$id_autorizado_por',NOW(),'$estado')";
+        $sql = "INSERT INTO `apertura_caja`(`id`,`id_caja`,`id_trabajador`,`fecha_apertura`,`estado`) VALUES ($id,'$id_caja','$id_trabajador',NOW(),'$estado')";
 
         if ($this->db->query($sql)) {
             // La inserción fue exitosa

@@ -21,6 +21,10 @@ if (session_status() == PHP_SESSION_NONE) {
     $_SESSION['last_activity'] = time();
   }
 }
+// Inicializa el carrito si no existe
+if (!isset($_SESSION['carrito'])) {
+  $_SESSION['carrito'] = array();
+}
 if (isset($_SESSION['mensaje'])) {
   echo '
     <script>
@@ -46,27 +50,27 @@ if (isset($_SESSION['mensaje'])) {
   <link rel="icon" href="assets/img/Logos/logo.png" type="image/png">
   <!-- Font awesome -->
   <link href="assets/css/font-awesome.css" rel="stylesheet">
-    <!-- Bootstrap -->
-    <link href="assets/css/bootstrap.css" rel="stylesheet">   
-    <!-- SmartMenus jQuery Bootstrap Addon CSS -->
-    <link href="assets/css/jquery.smartmenus.bootstrap.css" rel="stylesheet">
-    <!-- Product view slider -->
-    <link rel="stylesheet" type="text/css" href="assets/css/jquery.simpleLens.css">    
-    <!-- slick slider -->
-    <link rel="stylesheet" type="text/css" href="assets/css/slick.css">
-    <!-- price picker slider -->
-    <link rel="stylesheet" type="text/css" href="assets/css/nouislider.css">
-    <!-- Theme color -->
-    <link id="switcher" href="assets/css/theme-color/default-theme.css" rel="stylesheet">
-    <!-- Top Slider CSS -->
-    <link href="assets/css/sequence-theme.modern-slide-in.css" rel="stylesheet" media="all">
+  <!-- Bootstrap -->
+  <link href="assets/css/bootstrap.css" rel="stylesheet">
+  <!-- SmartMenus jQuery Bootstrap Addon CSS -->
+  <link href="assets/css/jquery.smartmenus.bootstrap.css" rel="stylesheet">
+  <!-- Product view slider -->
+  <link rel="stylesheet" type="text/css" href="assets/css/jquery.simpleLens.css">
+  <!-- slick slider -->
+  <link rel="stylesheet" type="text/css" href="assets/css/slick.css">
+  <!-- price picker slider -->
+  <link rel="stylesheet" type="text/css" href="assets/css/nouislider.css">
+  <!-- Theme color -->
+  <link id="switcher" href="assets/css/theme-color/default-theme.css" rel="stylesheet">
+  <!-- Top Slider CSS -->
+  <link href="assets/css/sequence-theme.modern-slide-in.css" rel="stylesheet" media="all">
 
-    <!-- Main style sheet -->
-    <link href="assets/css/style.css" rel="stylesheet">    
+  <!-- Main style sheet -->
+  <link href="assets/css/style.css" rel="stylesheet">
 
-    <!-- Google Font -->
-    <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+  <!-- Google Font -->
+  <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
   <!-- Top Slider CSS -->
   <link href="assets/css/sequence-theme.modern-slide-in.css" rel="stylesheet" media="all">
   <link rel="stylesheet" href="assets/admin/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
@@ -74,7 +78,7 @@ if (isset($_SESSION['mensaje'])) {
   <link rel="stylesheet" href="assets/admin/plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="assets/admin/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
 
- 
+
 
 </head>
 
@@ -95,28 +99,29 @@ if (isset($_SESSION['mensaje'])) {
               <div class="aa-header-top-right">
                 <ul class="aa-head-top-nav-right">
                   <li><a href="">Mi cuenta</a></li>
-                  <li class="hidden-xs"><a href="">Mi carrito</a></li>
-                  <li class="hidden-xs"><a href="">Checkout</a></li>
+                  <li class="hidden-xs"><a href="index.php?c=page&a=carrito">Mi carrito <span class="carrito-cantidad"><?php echo count($_SESSION['carrito']); ?></span></a></li>
+                  <li class="hidden-xs"><a href="index.php?c=page&a=checkout">Checkout</a></li>
 
                   <?php if (isset($_SESSION['nombre'])) { ?>
                     <div class="user-info-dropdown">
                       <div class="dropdown">
                         <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
                           <span class="user-icon">
-                            <img src="assets/img/fotos_perfil/<?php echo  $_SESSION['foto']; ?>" alt="Foto de usuario" width="50" height="" />
+                            <img src="assets/img/fotos_perfil/<?php echo $_SESSION['foto']; ?>" alt="Foto de usuario" width="50" height="" />
                           </span>
-                          <span class="user-name" style="font: bold 16px Arial, sans-serif; color:black;"><?php echo  $_SESSION['nombre']; ?></span>
+                          <span class="user-name" style="font: bold 16px Arial, sans-serif; color:black;"><?php echo $_SESSION['nombre']; ?></span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-
                           <a class="dropdown-item" href="index.php?c=login&a=cerrar&id=<?php echo $_SESSION['IdUsuario'] ?>">Log Out</a>
-
                         </div>
                       </div>
                     </div>
                   <?php } else { ?>
-                    <li><a href="" data-toggle="modal" data-target="#login-modal">Inciar session</a></li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="" data-toggle="modal" data-target="#login-modal">Iniciar sesión</a>
+                    </li>
                   <?php } ?>
+
                 </ul>
               </div>
             </div>
@@ -143,34 +148,52 @@ if (isset($_SESSION['mensaje'])) {
                 <a class="aa-cart-link" href="#">
                   <span class="fa fa-shopping-basket"></span>
                   <span class="aa-cart-title">Carro de compra</span>
-                  <span class="aa-cart-notify">2</span>
+                  <span class="aa-cart-notify"><span class="carrito-cantidad"><?php echo count($_SESSION['carrito']); ?></span></span>
                 </a>
                 <div class="aa-cartbox-summary">
                   <ul>
-                    <li>
-                      <a class="aa-cartbox-img" href="#"><img src="img/woman-small-2.jpg" alt="img"></a>
-                      <div class="aa-cartbox-info">
-                        <h4><a href="#">Nombre del producto</a></h4>
-                        <p>1 x $250</p>
-                      </div>
-                      <a class="aa-remove-product" href="#"><span class="fa fa-times"></span></a>
-                    </li>
-                    <li>
-                      <a class="aa-cartbox-img" href="#"><img src="img/woman-small-1.jpg" alt="img"></a>
-                      <div class="aa-cartbox-info">
-                        <h4><a href="#">Nombre producto</a></h4>
-                        <p>1 x $250</p>
-                      </div>
-                      <a class="aa-remove-product" href="#"><span class="fa fa-times"></span></a>
-                    </li>
-                    <li>
-                      <span class="aa-cartbox-total-title">
-                        Total
-                      </span>
-                      <span class="aa-cartbox-total-price">
-                        $500
-                      </span>
-                    </li>
+                    <!-- Agrega esta sección en tu HTML para mostrar el carrito -->
+                    <div>
+
+
+                      <?php if (!empty($_SESSION['carrito'])) : ?>
+                        <ul>
+
+                          <?php foreach ($_SESSION['carrito'] as $producto) : ?>
+                            <li>
+                              <a class="aa-cartbox-img" href="#"><img src="assets/img/productos/<?php echo $producto['foto']; ?>" alt="img"></a>
+                              <div class="aa-cartbox-info">
+                                <h4><a href="#"><?php echo $producto['nombre']; ?></a></h4>
+                                <p>1 x C$ <?php echo $producto['precio'] ?></p>
+                                <p>Cantidad: <?php echo $producto['cantidad']; ?></p>
+                              </div>
+                              <a class="aa-remove-product" href="index.php?c=page&a=eliminarProductoCarrito&id=<?php echo $producto['id']; ?>"><span class="fa fa-times"></span></a>
+                            </li>
+                          <?php endforeach; ?>
+                          <li>
+                            <span class="aa-cartbox-total-title">
+                              Total
+                            </span>
+                            <span class="aa-cartbox-total-price">
+                              <?php echo calcularTotalCarrito($_SESSION['carrito']); ?>
+                            </span>
+                          </li>
+                        </ul>
+
+
+                      <?php endif;
+                      function calcularTotalCarrito($carrito)
+                      {
+                        $total = 0;
+                        foreach ($carrito as $producto) {
+                          $total += $producto['precio'] * $producto['cantidad'];
+                        }
+                        return $total;
+                      }
+                      ?>
+                      
+                    </div>
+
                   </ul>
                   <a class="aa-cartbox-checkout aa-primary-btn" href="">Checkout</a>
                 </div>

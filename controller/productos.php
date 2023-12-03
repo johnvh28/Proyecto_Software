@@ -35,9 +35,15 @@ class ProductosController
         $productosT['productoT'] = $productoC->ObtenerPtalla($id);
         $productosModelo['productoModelo'] = $productoC->ObtenerPModelos($id);
         $productosManga['productoManga'] = $productoC->ObtenerPManga($id);
-        $productosPrecio['precio'] = $productoC->ObtenerPPrecio($id);
 
         require_once "view/Productos/Productos/CrearDetallesProductos.php";
+    }
+    public function precio()
+    {
+        $productoC = new Productos_Model();
+        $productosPrecio['precio'] = $productoC->ObtenerPPrecio();
+
+        require_once "view/Productos/PrecioProductos/precio_productos.php";
     }
     public function aggcolor()
     {
@@ -70,8 +76,8 @@ class ProductosController
     public function aggprecio()
     {
         $producto = new Productos_Model();
-        $productos["producto"] = $producto->selectproducto();
-        require_once "view/Productos/Productos/crear_producto_precio.php";
+        $productos["producto"] = $producto->MostraProductoSinPrecio();
+        require_once "view/Productos/PrecioProductos/crear_precio_producto.php";
     }
     public function GuadarProductos()
     {
@@ -840,6 +846,7 @@ class ProductosController
         session_start();
         $_SESSION['tipo'] = "success";
         $_SESSION["mensaje"] = "Se ha registrado con exito";
-        header("Location:index.php?c=productos&a=AgregarDetalles&id=".$producto);
+        header("Location:index.php?c=productos&a=precio");
     }
+    
 }

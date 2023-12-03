@@ -386,7 +386,8 @@ INSERT INTO genero (id,nombre, estado) VALUES
 /**
 *Perfiles 
 */
-INSERT INTO perfil (id,nombre, descripcion, estado) VALUES
+-- Insertar perfiles administrativos en la tabla de perfiles
+INSERT INTO perfil (nombre, descripcion, estado) VALUES
   (1,'Adminstrador del sistema', 'Encargado de supervisar y gestionar todo el sistema', 1),
   (2,'Clientes', 'Clientes', 1),
   (3,'Administrador de Ventas', 'Encargado de supervisar y gestionar las ventas', 1),
@@ -432,8 +433,7 @@ VALUES (1,'Inicio','Modulo para la gestion de inicio del sistema',NOW(),'right f
        (8,'Caja','',NOW(),'nav-icon fas fa-cash-register',1),
        (9,'Gestion de usuarios','',NOW(),'nav-icon fas  fa-users',1);
 
-INSERT INTO sub_modulo(id, id_modulo, nombre, descripcion, enlace, estado)
- VALUES (0,1,'Inicio','','index.php?c=inicio&a=dasboard',1);
+
 INSERT INTO sub_modulo(id, id_modulo, nombre, descripcion, enlace, estado)
  VALUES (1,1,'Dasboard','','index.php?c=dasboard',1);
 INSERT INTO sub_modulo(id, id_modulo, nombre, descripcion, enlace, estado)
@@ -456,63 +456,40 @@ INSERT INTO sub_modulo(id, id_modulo, nombre, descripcion, enlace, estado)
         (16,3,'Compras','','',1);
 
 INSERT INTO sub_modulo(id, id_modulo, nombre, descripcion, enlace, estado)
- VALUES (17,4,'Colaborador','','index.php?c=negocio',1),
-        (18,4,'Cargos','','index.php?c=negocio&a=cargos',1),
-        (19,4,'Asignar Cargos','','index.php?c=negocio&a=asignacioncargos',1),
-        (20,4,'Contratos','','index.php?c=negocio&a=contratos',1),
-        (21,4,'Salarios','','index.php?c=negocio&a=salario',1);
+ VALUES (16,4,'Colaborador','','index.php?c=negocio',1),
+        (17,4,'Cargos','','index.php?c=negocio&a=cargos',1),
+        (18,4,'Asignar Cargos','','index.php?c=negocio&a=asignacioncargos',1),
+        (19,4,'Contratos','','index.php?c=negocio&a=contratos',1),
+        (20,4,'Salarios','','index.php?c=negocio&a=salario',1);
 
 INSERT INTO sub_modulo(id, id_modulo, nombre, descripcion, enlace, estado)
- VALUES (22,5,'Venta','','index.php?c=venta',1),
-        (23,5,'devolucion de venta','','index.php?c=venta&devolucion',1),
-        (24,5,'Clientes','','index.php?c=venta&clientes',1),
-        (25,5,'Garantias','','index.php?c=venta&garantias',1);
+ VALUES (21,5,'Venta','','index.php?c=venta',1),
+        (22,5,'devolucion de venta','','index.php?c=venta&devolucion',1),
+        (23,5,'Clientes','','index.php?c=venta&clientes',1),
+        (24,5,'Garantias','','index.php?c=venta&garantias',1);
        
 INSERT INTO sub_modulo(id, id_modulo, nombre, descripcion, enlace, estado)
- VALUES (26,6,'Inventario','','index.php?c=inventario',1),
-        (27,6,'Movimientos','','index.php?c=inventario&a=movimientos',1),
-        (28,6,'Ubicacion','','index.php?c=inventario&a=ubicaciones',1);
+ VALUES (25,6,'Inventario','','index.php?c=inventario',1),
+        (26,6,'Movimientos','','index.php?c=inventario&a=movimientos',1),
+        (27,6,'Ubicacion','','index.php?c=inventario&a=ubicaciones',1);
         
 INSERT INTO sub_modulo(id, id_modulo, nombre, descripcion, enlace, estado)
- VALUES (29,7,'Entregas domicilio','','index.php?c=entregas',1),
-        (30,7,'Entregas en local','','index.php?c=entregas&a=local',1);
+ VALUES (28,7,'Entregas domicilio','','index.php?c=entregas',1),
+        (29,7,'Entregas en local','','index.php?c=entregas&a=local',1);
 
 INSERT INTO sub_modulo(id, id_modulo, nombre, descripcion, enlace, estado)
- VALUES (31,8,'Caja','Modulo de caja','index.php?c=caja',1),
-        (32,8,'Aperturas','Submodulo de apertura','index.php?c=caja&a=aperturas',1),
-        (33,8,'Arqueos','submodulo de arqueo','index.php?c=caja&a=arqueos',1),
-        (34,8,'Cierres','submodulo de cierres','index.php?c=caja&a=cierres',1),
-        (35,8,'Movimientos','submodulo de movimientos','index.php?c=caja&a=movimientos',1),
-        (36,8,'Cuentas por cobrar','submodulo de cuentas por cobrar','index.php?c=caja&a=cuentas',1);
+ VALUES (30,8,'Caja','Modulo de caja','index.php?c=caja',1),
+        (31,8,'Aperturas','Submodulo de apertura','index.php?c=caja&a=aperturas',1),
+        (32,8,'Arqueos','submodulo de arqueo','index.php?c=caja&a=arqueos',1),
+        (33,8,'Cierres','submodulo de cierres','index.php?c=caja&a=cierres',1),
+        (34,8,'Movimientos','submodulo de movimientos','index.php?c=caja&a=movimientos',1),
+        (35,8,'Cuentas por cobrar','submodulo de cuentas por cobrar','index.php?c=caja&a=cuentas',1);
 
 INSERT INTO sub_modulo(id, id_modulo, nombre, descripcion, enlace, estado)
- VALUES (37,9,'Roles','','index.php?c=usuario&a=rol',1),
-        (38,9,'Asignacion de modulos','','index.php?c=usuario&a=modulos',1),
-        (39,9,'Asignacion de permisos','','index.php?c=usuario&a=permisos',1),
-        (40,9,'Usuarios','','index.php?c=usuario',1),
-        (41,9,'Verificar usuarios','','index.php?c=usuario&a=verificar',1),
-        (42,9,'Monitoreo','','index.php?c=usuario&a=monitoreo',1);       
+ VALUES (36,9,'Roles','','index.php?c=usuario&a=rol',1),
+        (37,9,'Asignacion de modulos','','index.php?c=usuario&a=modulos',1),
+        (38,9,'Asignacion de permisos','','index.php?c=usuario&a=permisos',1),
+        (39,9,'Usuarios','','index.php?c=usuario',1),
+        (40,9,'Verificar usuarios','','index.php?c=usuario&a=verificar',1),
+        (41,9,'Monitoreo','','index.php?c=usuario&a=monitoreo',1);       
 
-
-INSERT INTO permiso (id,nombre, descripcion) 
-VALUES (1,'Ver', 'Permiso para ver los registros'),
-       (2,'Crear', 'Permiso para crear nuevos registros'),
-       (3,'Actualizar', 'Permiso para actualizar registros existentes'),
-       (4,'Eliminar', 'Permiso para eliminar registros'),
-       (5,'Anular', 'Permiso para anular registros'),
-       (6,'Aperturar','Permisos para aperturar caja'),
-       (7,'Autorizar','permiso para autorizar en caja'),
-       (8,'Arquear','Permisos para arqueo de caja'),
-       (9,'Cerrar','Permiso para cerrar caja'),
-      (10,'Verficar','Verficar usuarios');
-
-INSERT INTO permiso_modulo (id,id_modulo, id_permiso)
-VALUES
-(1,2, 1), (2,2, 2), (3,2, 3), (4,2, 4),
-(5,3, 1), (6,3, 2), (7,3, 3),(8,3, 5),
-(9,4, 1), (10,4, 2), (11,4, 3),(12,4, 5),
-(13,5, 1), (14,5, 2), (15,5, 3),(16,5, 5),
-(17,6, 1), (18,6, 2), (19,6, 3),
-(20,7, 6), (21,7, 7), (22,7, 8),(23,7, 5),(24,7,9),
-(25,8, 1), (26,8, 2), (27,8, 3), (28,8, 6),
-(29,9, 1), (30,9, 2), (31,9, 3), (32,9, 4),(33,9,5);

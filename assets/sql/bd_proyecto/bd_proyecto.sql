@@ -499,7 +499,7 @@ CREATE TABLE
         subtotal DECIMAL(10, 2) NOT NULL,
         descuento DECIMAL(10, 2) NOT NULL,
         total DECIMAL(10, 2) NOT NULL,
-        estado VARCHAR(50),
+        estado INTEGER,
         FOREIGN KEY (cliente_id) REFERENCES cliente(id)
     );
 
@@ -513,7 +513,14 @@ CREATE TABLE
         FOREIGN KEY (pedido_id) REFERENCES pedido(id),
         FOREIGN KEY (producto_id) REFERENCES productos(id)
     );
-
+CREATE TABLE direccion_pedidos(
+    id INTEGER PRIMARY KEY,
+    id_puntos_referencia INTEGER ,
+    pedido_id INTEGER,
+    estado INTEGER,
+    FOREIGN KEY (id_puntos_referencia) REFERENCES puntos_referencia(id),
+    FOREIGN KEY (pedido_id) REFERENCES pedido(id)
+);
 CREATE TABLE
     venta (
         id INTEGER PRIMARY KEY,
@@ -566,7 +573,7 @@ CREATE TABLE
     detalle_entrega (
         id INTEGER PRIMARY KEY,
         id_entrega INTEGER,
-        direccion_entrega VARCHAR(250) NOT NULL,
+        id_direccion_pedidos INTEGER,
         nombre_receptor VARCHAR(100) NOT NULL,
         identificacion_receptor VARCHAR(25),
         telefono_receptor VARCHAR(20),
@@ -620,7 +627,6 @@ CREATE TABLE
 FOREIGN KEY (id_sub_ubicacion) REFERENCES sub_ubicacion (id) ON DELETE CASCADE ON UPDATE CASCADE,
 FOREIGN KEY (id_nivel) REFERENCES niveles_estantes (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
-
 -- Creación de Tabla para Movimientos de Bodega
 
 CREATE TABLE
@@ -932,7 +938,7 @@ CREATE TABLE
         id_usuario INTEGER,
         autorizacion INTEGER,
         FOREIGN KEY (id_permiso) REFERENCES permiso_modulo(id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (id_usuario) REFERENCES usuario(id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (id_usuario) REFERENCES rol(id) ON DELETE CASCADE ON UPDATE CASCADE,
         FOREIGN KEY (autorizacion) REFERENCES empleado(id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 

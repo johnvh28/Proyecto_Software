@@ -26,7 +26,6 @@
                                 <li class="nav-item"><a class="nav-link" href="#timeline" data-toggle="tab">Mangas</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">Tallas</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#settingsmodelos" data-toggle="tab">Modelos</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#settingsprecio" data-toggle="tab">Precios</a></li>
                             </ul>
                         </div><!-- /.card-header -->
                         <div class="card-body">
@@ -242,62 +241,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="tab-pane" id="settingsprecio">
-                                    <div class="align-content-end text-right">
-                                        <a href="index.php?c=productos&a=aggprecio&id=<?php echo $_GET['id'] ?>" class="btn btn-success">Registrar Precio</a>
-                                    </div>
 
-
-                                    <table id="example1" class="table table-bordered table-striped">
-
-                                        <thead>
-                                            <tr>
-                                                <th>Producto</th>
-                                                <th>Precio de compra</th>
-                                                <th>Margen de ganancia</th>
-                                                <th>Precio de venta</th>
-                                                <th>Fecha de registro</th>
-                                                <th>Estado</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($productosPrecio['precio'] as $pprecio) : ?>
-                                                <tr>
-                                                    <td><?php echo $pprecio['nombre_producto'] ?></td>
-                                                    <td><?php echo $pprecio['precio_compra'] ?></td>
-                                                    <td><?php echo $pprecio['margen_ganancia'] ?></td>
-                                                    <td><?php echo $pprecio['precio_venta'] ?></td>
-                                                    <td><?php echo $pprecio['fecha_registro'] ?></td>
-
-                                                    <td>
-                                                        <?php if ($pprecio['estado'] == 1) : ?>
-                                                            <span class="badge rounded-pill bg-success" style="font: bold 12px Arial, sans-serif; color:white;">Activo</span></span>
-                                                        <?php elseif ($pprecio['estado'] == 2) : ?>
-                                                            <span class="badge rounded-pill bg-danger" style="font: bold 12px Arial, sans-serif; color:white;">Inactivo</span></span>
-                                                        <?php endif; ?>
-
-                                                    </td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-block dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                            <a class="badge rounded-pill bg-gradient-info "><i class="fas fa-ellipsis-v"></i></a>
-                                                        </button>
-                                                        <div class="dropdown-menu">
-                                                            <button type="button" class="dropdown-item" data-toggle="modal" data-target="#Activar<?php echo $modelos['id']; ?>"><i class="fas fa-eye"></i>Ver detalles</button>
-                                                            <a type="button" class="dropdown-item" href="index.php?c=productos&a=AgregarDetalles&id=<?php echo $modelos['id']; ?>"><i class="fas fa-info-circle"></i>Agregar detalles</a>
-                                                            <a class="dropdown-item" href="index.php?c=usuario&a=actualizarproductos&id=<?php echo $modelos['id']; ?>"><i class="fas fa-edit"> </i>Editar</a>
-                                                            <a class="dropdown-item" href="index.php?c=usuarioid=<?php echo $modelos['id']; ?>"><i class="fas  fa-trash"></i>Eliminar</a>
-                                                        </div>
-
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach; ?>
-
-                                        </tbody>
-                                    </table>
-
-
-                                </div>
                             </div>
 
                         </div>

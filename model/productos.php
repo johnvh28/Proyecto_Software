@@ -19,7 +19,7 @@ class Productos_Model
     private $ObtenerColor;
     private $ObtenerManga;
     private $Modelos;
-   private  $Pprecio;
+    private  $Pprecio;
     public function __construct()
     {
         $this->db = conectar::conexion();
@@ -66,13 +66,11 @@ class Productos_Model
     }
     public function MostrarProductosPagina()
     {
-        $sql="SELECT DISTINCT p.*, sc.nombre AS sub, c.nombre AS categoria, pp.precio_venta AS precio
-        FROM productos p 
-        INNER JOIN subcategorias sc ON sc.id = p.subcategoria_id
-        INNER JOIN categorias c ON sc.categoria_id = c.id
-        LEFT JOIN precios_productos pp ON p.id = pp.producto_id
-        WHERE p.estado = 1 ";
-        $resultado=$this->db->query($sql);
+        $sql = "SELECT p.*, pp.precio_venta AS precio, sc.nombre AS sub,c.nombre AS categoria FROM productos p
+        JOIN precios_productos pp ON pp.producto_id = p.id
+        JOIN subcategorias sc ON sc.id = p.subcategoria_id
+        LEFT JOIN categorias c ON c.id = sc.categoria_id WHERE p.estado = 1";
+        $resultado = $this->db->query($sql);
         if ($resultado->num_rows > 0) {
             // Inicializar un array para almacenar los resultados
             $productosLadin = array();
@@ -88,13 +86,153 @@ class Productos_Model
             // Si no hay resultados, devolver un array vacío
             return array();
         }
-
     }
-    public function SubCategorias()
+    public function obtenerDetallesProducto($id)
     {
-        
+        $sql = "SELECT p.id,p.foto, p.nombre, pp.precio_venta AS precio FROM productos p
+                JOIN precios_productos pp ON pp.producto_id = p.id WHERE p.id = $id";
+
+        $resultado = $this->db->query($sql);
+
+        // Verificar si la consulta fue exitosa y si se obtuvo al menos una fila
+        if ($resultado && $resultado->num_rows > 0) {
+            // Obtener la fila como un arreglo asociativo
+            $producto = $resultado->fetch_assoc();
+
+            // Liberar el resultado después de obtener los datos
+            $resultado->free();
+
+            return $producto;
+        }
+
+        // En caso de que la consulta no sea exitosa o no se encuentre el producto
+        return null;
     }
-  
+    public function MostrarProductossubcategorias($Id)
+    {
+        $sql = "SELECT p.*, pp.precio_venta AS precio, sc.nombre AS sub,c.nombre AS categoria FROM productos p
+        JOIN precios_productos pp ON pp.producto_id = p.id
+        JOIN subcategorias sc ON sc.id = p.subcategoria_id
+        LEFT JOIN categorias c ON c.id = sc.categoria_id WHERE p.estado = 1 AND p.subcategoria_id = $Id";
+        $resultado = $this->db->query($sql);
+        if ($resultado->num_rows > 0) {
+            // Inicializar un array para almacenar los resultados
+            $productosLadin = array();
+
+            // Iterar sobre los resultados y almacenarlos en el array
+            while ($row = $resultado->fetch_assoc()) {
+                $productosLadin[] = $row;
+            }
+
+            // Devolver el array de resultados
+            return $productosLadin;
+        } else {
+            // Si no hay resultados, devolver un array vacío
+            return array();
+        }
+    }
+    
+    public function MostrarProductosMangas($Id)
+    {
+        $sql = "SELECT p.id,pt.foto, p.nombre, pp.precio_venta AS precio FROM productos p
+        JOIN precios_productos pp ON pp.producto_id = p.id 
+        JOIN producto_manga pt ON pt.id_producto =p.id
+        WHERE p.estado = 1 AND pt.id_manga = $Id";
+        $resultado = $this->db->query($sql);
+        if ($resultado->num_rows > 0) {
+            // Inicializar un array para almacenar los resultados
+            $productosLadin = array();
+
+            // Iterar sobre los resultados y almacenarlos en el array
+            while ($row = $resultado->fetch_assoc()) {
+                $productosLadin[] = $row;
+            }
+
+            // Devolver el array de resultados
+            return $productosLadin;
+        } else {
+            // Si no hay resultados, devolver un array vacío
+            return array();
+        }
+    } 
+    public function MostrarProductosModelos($Id)
+    {
+        $sql = "SELECT p.id,pt.foto, p.nombre, pp.precio_venta AS precio FROM productos p
+        JOIN precios_productos pp ON pp.producto_id = p.id 
+        JOIN producto_modelo pt ON pt.id_producto =p.id
+        WHERE p.estado = 1 AND pt.id_modelo = $Id";
+        $resultado = $this->db->query($sql);
+        if ($resultado->num_rows > 0) {
+            // Inicializar un array para almacenar los resultados
+            $productosLadin = array();
+
+            // Iterar sobre los resultados y almacenarlos en el array
+            while ($row = $resultado->fetch_assoc()) {
+                $productosLadin[] = $row;
+            }
+
+            // Devolver el array de resultados
+            return $productosLadin;
+        } else {
+            // Si no hay resultados, devolver un array vacío
+            return array();
+        }
+    } 
+    
+    public function MostrarProductosColores($Id)
+    {
+        $sql = "SELECT p.id,pt.foto, p.nombre, pp.precio_venta AS precio FROM productos p
+        JOIN precios_productos pp ON pp.producto_id = p.id 
+        JOIN producto_color pt ON pt.id_producto =p.id
+        WHERE p.estado = 1 AND pt.id_color = $Id";
+        $resultado = $this->db->query($sql);
+        if ($resultado->num_rows > 0) {
+            // Inicializar un array para almacenar los resultados
+            $productosLadin = array();
+
+            // Iterar sobre los resultados y almacenarlos en el array
+            while ($row = $resultado->fetch_assoc()) {
+                $productosLadin[] = $row;
+            }
+
+            // Devolver el array de resultados
+            return $productosLadin;
+        } else {
+            // Si no hay resultados, devolver un array vacío
+            return array();
+        }
+    } 
+    public function CategoriasSubcategoriasLimitadas()
+    {
+        $sql = "SELECT c.id AS categoria_id, c.nombre AS categoria, sc.id AS subcategoria_id, sc.nombre AS subcategoria
+                FROM (SELECT id, nombre FROM categorias LIMIT 3) c
+                LEFT JOIN subcategorias sc ON c.id = sc.categoria_id";
+
+        $resultado = $this->db->query($sql);
+        $categoriasSub = array(); // Cambiado el nombre de la variable
+
+        while ($row = $resultado->fetch_assoc()) {
+            $categoria_id = $row['categoria_id'];
+            $categoria_nombre = $row['categoria']; // Cambiado el nombre de la variable
+            $subcategoria_id = $row['subcategoria_id'];
+            $subcategoria_nombre = $row['subcategoria']; // Cambiado el nombre de la variable
+
+            if (!isset($categoriasSub[$categoria_id])) {
+                $categoriasSub[$categoria_id] = array(
+                    'nombre' => $categoria_nombre,
+                    'subcategorias' => array(),
+                );
+            }
+
+            $categoriasSub[$categoria_id]['subcategorias'][] = array(
+                'id' => $subcategoria_id,
+                'nombre' => $subcategoria_nombre,
+            );
+        }
+
+        return $categoriasSub;
+    }
+
     public function Mostrar($TABLA)
     {
         $TABLA = $this->db->real_escape_string($TABLA);
@@ -662,9 +800,8 @@ class Productos_Model
         }
         return $this->Modelos;
     }
-    public function ObtenerPPrecio($id)
+    public function ObtenerPPrecio()
     {
-        $id = filter_var($id, FILTER_VALIDATE_INT);
         $sql = "SELECT
         pp.id,
         p.nombre AS nombre_producto,
@@ -676,12 +813,10 @@ class Productos_Model
     FROM
         precios_productos pp
     INNER JOIN productos p ON
-        pp.producto_id = p.id
-    WHERE
-        pp.producto_id = $id";
+        pp.producto_id = p.id";
         $resultado = $this->db->query($sql);
         while ($row = $resultado->fetch_assoc()) {
-          
+
             $this->Pprecio[] = $row;
         }
         return $this->Pprecio;
@@ -820,6 +955,32 @@ class Productos_Model
         } else {
             // Hubo un error en la inserción
             return $mensaje = "Error al realizar la inserción: " . $this->db->error;
+        }
+    }
+    public function MostraProductoSinPrecio()
+    {
+        $sql = "SELECT
+        p.id ,p.nombre
+    FROM
+        productos p
+    WHERE
+        p.estado = 1 AND NOT EXISTS(
+        SELECT
+            producto_id
+        FROM
+            precios_productos pp
+        WHERE
+            pp.producto_id = p.id)";
+        $resultado = $this->db->query($sql);
+        if ($resultado) {
+            if ($resultado->num_rows > 0) {
+                while ($row = $resultado->fetch_assoc()) {
+                    $this->Talla[] = $row;
+                }
+                return $this->Talla;
+            } else {
+                return array(); // Si no hay datos, retornar null o un mensaje de error, según convenga
+            }
         }
     }
 }

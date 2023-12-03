@@ -14,6 +14,7 @@ class Usuarios_Model
     private $usuario;
     private $conexion;
     private $privilegios;
+    private $permisos;
     private $historicos;
 
 
@@ -25,6 +26,8 @@ class Usuarios_Model
         $this->usuario = array();
         $this->conexion = array();
         $this->privilegios = array();
+        $this->permisos = array();
+
         $this->historicos = array();
     }
     /**
@@ -43,6 +46,7 @@ class Usuarios_Model
             return array(); // Si no hay datos, retornar null o un mensaje de error, según convenga
         }
     }
+
     public function GenerarCodigoRol()
     {
         $longitudCodigo = 8;
@@ -177,19 +181,19 @@ class Usuarios_Model
         LEFT JOIN persona_natural pn ON p.id = pn.id_persona
         LEFT JOIN rol r ON u.id_rol = r.id
         WHERE u.id = $Id";
-        $resultados=$this->db->query($sql);
-        $row=$resultados->fetch_assoc();
+        $resultados = $this->db->query($sql);
+        $row = $resultados->fetch_assoc();
         return $row;
     }
     public function ObtenerRolesHistoricos($Id)
-    {  
-        $Id=filter_var($Id,FILTER_VALIDATE_INT);
-        $sql="SELECT rt.*, us.usuario AS autorizado,r.nombre AS rol FROM roles_temporales rt  
+    {
+        $Id = filter_var($Id, FILTER_VALIDATE_INT);
+        $sql = "SELECT rt.*, us.usuario AS autorizado,r.nombre AS rol FROM roles_temporales rt  
         JOIN rol r ON rt.id_rol = r.id
          JOIN usuario e ON e.id = rt.id_usuario
          JOIN usuario us ON rt.autorizado =us.id
         WHERE e.id =  $Id";
-        $resultado =$this->db->query($sql);
+        $resultado = $this->db->query($sql);
         if ($resultado->num_rows > 0) {
             while ($row = $resultado->fetch_assoc()) {
                 $this->historicos[] = $row;
@@ -295,6 +299,23 @@ class Usuarios_Model
         }
         return $this->rol;
     }
+    public function RolesPermisos()
+    {
+        $sql = "SELECT r.id, r.nombre
+        FROM rol r
+        LEFT JOIN privilegio_permiso_rol pr ON r.id = pr.id_usuario
+        WHERE pr.id_usuario IS NULL;";
+        $resultado = $this->db->query($sql);
+        if ($resultado && $resultado->num_rows > 0) {
+            while ($row = $resultado->fetch_assoc()) {
+                $this->rol[] = $row;
+            }
+        } else {
+            // Si no hay resultados, devolver un array vacío o lanzar una excepción según sea necesario.
+            $this->rol;
+        }
+        return $this->rol;
+    }
     public function GenerarCodigoUsuario($longitud = 8)
     {
         do {
@@ -327,7 +348,7 @@ class Usuarios_Model
 
         if ($this->db->query($sql)) {
             // La inserción fue exitosa
-            return array("Id"=>$id,"Codigo"=>$codigo);
+            return array("Id" => $id, "Codigo" => $codigo);
         } else {
             // Hubo un error en la inserción
             return $mensaje = "Error al realizar la inserción: " . $this->db->error;
@@ -424,7 +445,7 @@ class Usuarios_Model
         $intentos = 0;
 
         do {
-          
+
             $iniciales = substr($nombre, 0, 4) . substr($apellido, 0, 4) . rand(1000, 9999);
 
 
@@ -440,11 +461,11 @@ class Usuarios_Model
 
             $intentos++;
 
-          
-            usleep(100000); 
-        } while ($intentos < 10); 
 
-        return null; 
+            usleep(100000);
+        } while ($intentos < 10);
+
+        return null;
     }
 
     public function generar_contraseña($longitud = 8)
@@ -492,24 +513,22 @@ class Usuarios_Model
             return "Error al cambiar el estado: " . $this->db->error;
         }
     }
-    public function InsertarRolesTemporales($id_rol,$id_usuario,$autorizado)
+    public function InsertarRolesTemporales($id_rol, $id_usuario, $autorizado)
     {
         $Persona = new Persona_model();
-        $Id=$Persona->obtenerNuevoId($nombre="roles_temporales");
-        $id_usuario= filter_var($id_usuario,FILTER_VALIDATE_INT);
-        $id_rol= filter_var($id_rol,FILTER_VALIDATE_INT);
-        $autorizacion= filter_var($autorizado,FILTER_VALIDATE_INT);
-        
-        $sql="INSERT INTO roles_temporales (id,id_rol,id_usuario,autorizado,fecha_registro,estado) VALUES($Id,$id_rol,$id_usuario,$autorizacion,NOW(),1)";
-        if($this->db->query($sql))
-        {
+        $Id = $Persona->obtenerNuevoId($nombre = "roles_temporales");
+        $id_usuario = filter_var($id_usuario, FILTER_VALIDATE_INT);
+        $id_rol = filter_var($id_rol, FILTER_VALIDATE_INT);
+        $autorizacion = filter_var($autorizado, FILTER_VALIDATE_INT);
+
+        $sql = "INSERT INTO roles_temporales (id,id_rol,id_usuario,autorizado,fecha_registro,estado) VALUES($Id,$id_rol,$id_usuario,$autorizacion,NOW(),1)";
+        if ($this->db->query($sql)) {
             return $this->db->insert_id;
-        }
-        else{
+        } else {
             return $mensaje = "Error al realizar la inserción: " . $this->db->error;
         }
     }
-    public function CambiarEstadoRolTemporal($Id,$estado)
+    public function CambiarEstadoRolTemporal($Id, $estado)
     {
         $id = filter_var($Id, FILTER_VALIDATE_INT);
         $estado = filter_var($estado, FILTER_VALIDATE_INT);
@@ -740,6 +759,192 @@ class Usuarios_Model
     /**
      * Permisos Rol
      */
+    public function mostrarPermisosPorModulo()
+    {
+        $query = "SELECT pm.id AS id_permiso_modulo, m.id AS id_modulo, m.nombre AS nombre_modulo, p.id AS id_permiso, p.nombre AS nombre_permiso, p.descripcion AS descripcion_permiso
+              FROM modulo m
+              INNER JOIN permiso_modulo pm ON m.id = pm.id_modulo
+              INNER JOIN permiso p ON pm.id_permiso = p.id
+              WHERE m.estado = 1";
+
+        $resultado = $this->db->query($query);
+        if ($resultado && $resultado->num_rows > 0) {
+            $permisos = array();
+            while ($row = $resultado->fetch_assoc()) {
+                $id_permiso_modulo = $row['id_permiso_modulo'];
+                $modulo_id = $row['id_modulo'];
+                $modulo_nombre = $row['nombre_modulo'];
+                $permiso_id = $row['id_permiso'];
+                $permiso_nombre = $row['nombre_permiso'];
+                $permiso_descripcion = $row['descripcion_permiso'];
+
+                // Si el módulo ya está en el array, agregar el permiso correspondiente
+                if (array_key_exists($modulo_nombre, $permisos)) {
+                    array_push(
+                        $permisos[$modulo_nombre]['permisos'],
+                        array(
+                            'id_permiso_modulo' => $id_permiso_modulo,
+                            'id' => $permiso_id,
+                            'nombre' => $permiso_nombre,
+                            'descripcion' => $permiso_descripcion
+                        )
+                    );
+                } else {
+                    $permisos[$modulo_nombre] = array(
+                        'id' => $modulo_id,
+                        'nombre' => $modulo_nombre,
+                        'permisos' => array(
+                            array(
+                                'id_permiso_modulo' => $id_permiso_modulo,
+                                'id' => $permiso_id,
+                                'nombre' => $permiso_nombre,
+                                'descripcion' => $permiso_descripcion
+                            )
+                        )
+                    );
+                }
+            }
+
+            $modulos_con_permisos = array_values($permisos);
+
+            return $modulos_con_permisos;
+        } else {
+            return array();
+        }
+    }
+
+    public function MostrarPermisos()
+    {
+        $sql = "SELECT u.usuario AS autorizado, r.id AS id_usuario,r.nombre,GROUP_CONCAT(CONCAT(m.nombre, ' - ', per.nombre) ORDER BY m.nombre SEPARATOR ', ') AS usuario_modulos_submodulos, r.estado AS rol_estado,   
+        COUNT(DISTINCT pu.id_permiso) AS cantidad_permisos
+        FROM privilegio_permiso_rol pu 
+        JOIN permiso_modulo sm ON sm.id = pu.id_permiso
+        JOIN permiso per ON per.id = sm.id_permiso
+        JOIN modulo m ON m.id = sm.id_modulo 
+        JOIN usuario u ON u.id = pu.autorizacion
+        JOIN rol r ON r.id = pu.id_usuario
+        GROUP BY r.nombre";
+        $resultado = $this->db->query($sql);
+        if ($resultado && $resultado->num_rows > 0) {
+            while ($row = $resultado->fetch_assoc()) {
+                $this->permisos[] = $row;
+            }
+        } else {
+            // Si no hay resultados, devolver un array vacío o lanzar una excepción según sea necesario.
+            $this->permisos;
+        }
+        return $this->permisos;
+    }
+    public function ObtenerPermisosFaltantes($id_usuario)
+    {
+        $query = "SELECT pm.id AS id_permiso_modulo, m.id AS id_modulo, m.nombre AS nombre_modulo, p.id AS id_permiso, p.nombre AS nombre_permiso, p.descripcion AS descripcion_permiso
+        FROM modulo m
+        INNER JOIN permiso_modulo pm ON m.id = pm.id_modulo
+        INNER JOIN permiso p ON pm.id_permiso = p.id
+        WHERE m.estado = 1  NOT IN (SELECT id_permiso FROM privilegio_permiso_rol pp WHERE 
+              pp.id_usuario =  '$id_usuario') ";
+
+        $resultado = $this->db->query($query);
+        if ($resultado && $resultado->num_rows > 0) {
+            $permisos = array();
+            while ($row = $resultado->fetch_assoc()) {
+                $id_permiso_modulo = $row['id_permiso_modulo'];
+                $modulo_id = $row['id_modulo'];
+                $modulo_nombre = $row['nombre_modulo'];
+                $permiso_id = $row['id_permiso'];
+                $permiso_nombre = $row['nombre_permiso'];
+                $permiso_descripcion = $row['descripcion_permiso'];
+
+                // Si el módulo ya está en el array, agregar el permiso correspondiente
+                if (array_key_exists($modulo_nombre, $permisos)) {
+                    array_push(
+                        $permisos[$modulo_nombre]['permisos'],
+                        array(
+                            'id_permiso_modulo' => $id_permiso_modulo,
+                            'id' => $permiso_id,
+                            'nombre' => $permiso_nombre,
+                            'descripcion' => $permiso_descripcion
+                        )
+                    );
+                } else {
+                    $permisos[$modulo_nombre] = array(
+                        'id' => $modulo_id,
+                        'nombre' => $modulo_nombre,
+                        'permisos' => array(
+                            array(
+                                'id_permiso_modulo' => $id_permiso_modulo,
+                                'id' => $permiso_id,
+                                'nombre' => $permiso_nombre,
+                                'descripcion' => $permiso_descripcion
+                            )
+                        )
+                    );
+                }
+            }
+
+            $modulos_con_permisos = array_values($permisos);
+
+            return $modulos_con_permisos;
+        } else {
+            return array();
+        }
+    }
+    public function EliminarPermisos($id_usuario)
+    {
+        $query = "SELECT pp.id AS id_permiso_modulo, m.id AS id_modulo, m.nombre AS nombre_modulo, p.id AS id_permiso, p.nombre AS nombre_permiso, p.descripcion AS descripcion_permiso
+        FROM privilegio_permiso_rol pp
+        LEFT JOIN permiso_modulo pm ON pp.id_permiso = pm.id_permiso
+        LEFT JOIN modulo m ON m.id = pm.id_modulo
+        LEFT JOIN permiso p ON p.id = pm.id_permiso
+        WHERE pp.id_usuario = '$id_usuario'
+        ORDER BY id_permiso_modulo, id_modulo, id_permiso";
+
+        $resultado = $this->db->query($query);
+        if ($resultado && $resultado->num_rows > 0) {
+            $permisos = array();
+            while ($row = $resultado->fetch_assoc()) {
+                $id_permiso_modulo = $row['id_permiso_modulo'];
+                $modulo_id = $row['id_modulo'];
+                $modulo_nombre = $row['nombre_modulo'];
+                $permiso_id = $row['id_permiso'];
+                $permiso_nombre = $row['nombre_permiso'];
+                $permiso_descripcion = $row['descripcion_permiso'];
+
+                // Si el módulo ya está en el array, agregar el permiso correspondiente
+                if (array_key_exists($modulo_nombre, $permisos)) {
+                    array_push(
+                        $permisos[$modulo_nombre]['permisos'],
+                        array(
+                            'id_permiso_modulo' => $id_permiso_modulo,
+                            'id' => $permiso_id,
+                            'nombre' => $permiso_nombre,
+                            'descripcion' => $permiso_descripcion
+                        )
+                    );
+                } else {
+                    $permisos[$modulo_nombre] = array(
+                        'id' => $modulo_id,
+                        'nombre' => $modulo_nombre,
+                        'permisos' => array(
+                            array(
+                                'id_permiso_modulo' => $id_permiso_modulo,
+                                'id' => $permiso_id,
+                                'nombre' => $permiso_nombre,
+                                'descripcion' => $permiso_descripcion
+                            )
+                        )
+                    );
+                }
+            }
+
+            $modulos_con_permisos = array_values($permisos);
+
+            return $modulos_con_permisos;
+        } else {
+            return array();
+        }
+    }
+
     public function InsertarPrivilegioPermisoRol($id_permiso, $id_usuario, $autorizacion)
     {
         $persona = new Persona_model();
@@ -769,6 +974,16 @@ class Usuarios_Model
         $sql = "UPDATE privilegio_permiso_rol SET id_permiso='$id_permiso', id_usuario='$id_usuario',  autorizacion='$autorizacion' WHERE id=$id";
 
         if ($this->db->query($sql)) {
+            return true; // La actualización fue exitosa
+        } else {
+            return "Error al realizar la actualización: " . $this->db->error;
+        }
+    }
+    public function EliminarPermisoRol($Id)
+    {
+        $Id = filter_var($Id, FILTER_VALIDATE_INT);
+        $Sql = "DELETE FROM privilegio_permiso_rol WHERE id_permiso = $Id";
+        if ($this->db->query($Sql)) {
             return true; // La actualización fue exitosa
         } else {
             return "Error al realizar la actualización: " . $this->db->error;

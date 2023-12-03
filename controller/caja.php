@@ -306,7 +306,7 @@ class CajaController
         $id = $_POST['id'];
         $id_trabajador = $_POST['id_trabajador'];
         $caja = new Caja_Model();
-        $id_apertura = $caja->crearAperturaCaja($id, $id_trabajador, 1);
+        $id_apertura = $caja->InsertarAperturaCaja($id, $id_trabajador, 1);
         $caja->cambiarEstadoCaja($id, 3);
         $carrito = json_decode($_POST['datosCarrito'], true);
         if ($carrito !== null) {

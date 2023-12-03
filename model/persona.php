@@ -30,7 +30,7 @@ class Persona_model
         $id_domicilio = filter_var($id_domicilio, FILTER_VALIDATE_INT);
         $correo = filter_var($correo, FILTER_VALIDATE_EMAIL);
         $foto = $this->db->real_escape_string($foto);
-        $sql = "INSERT INTO persona (id, nombre, telefono, id_punto_referencia, correo, foto) VALUES ('$id', '$nombre', '$telefono', '$id_domicilio', '$correo', '$foto')";
+        $sql = "INSERT INTO persona (id, nombre, telefono, id_punto_referencia, correo, foto,fecha_registro) VALUES ('$id', '$nombre', '$telefono', '$id_domicilio', '$correo', '$foto',NOW())";
         if ($this->db->query($sql)) {
             // La inserción fue exitosa
             return $id;
@@ -106,16 +106,15 @@ class Persona_model
         $tipo_identificacion = $this->db->real_escape_string($tipo_identificacion);
         $identificacion = $this->db->real_escape_string($identificacion);
         $fecha_nacimiento = $this->db->real_escape_string($fecha_nacimiento);
-   
+
         $sql = "UPDATE persona_natural SET id_nacionalidad = $id_nacionalidad, id_genero = $id_genero, apellido = '$apellido', tipo_identificacion = '$tipo_identificacion', identificacion = '$identificacion', fecha_nacimiento = '$fecha_nacimiento' WHERE id = $id_persona";
-    
+
         if ($this->db->query($sql)) {
-           
+
             return $id_persona;
         } else {
-           
+
             return "Error al realizar la actualización: " . $this->db->error;
-           
         }
     }
 
@@ -176,6 +175,19 @@ class Persona_model
     /**
      * Funcion para el front end
      */
+    public function DireccionCliente($Id)
+    {
+        $sql = "SELECT  pr.*, m.nombre AS municipio,d.nombre AS departamento,
+        m.id AS municipios
+        FROM persona p
+        LEFT JOIN puntos_referencia pr ON p.id_punto_referencia = pr.id
+        LEFT JOIN municipio m ON pr.cod_municipio = m.id
+        LEFT JOIN departamento d ON m.cod_departamento = d.id
+        Where p.id=$Id";
+        $resultado = $this->db->query($sql);
+        $row = $resultado->fetch_assoc();
+        return $row;
+    }
     public function SelectGenero()
     {
         $sql = "SELECT id,nombre FROM genero WHERE estado = 1";

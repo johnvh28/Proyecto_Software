@@ -50,6 +50,8 @@ class LoginController
                     $usuarioModel->insertarConexion($id, $direccionMAC, $ip, $navegador, $versionNavegador, $sistemaOperativo, $versionSistemaOperativo, 1);
                     $nombres = $loginModel->datosUsuariosclientes($id);
                     $_SESSION['IdUsuario'] = $id;
+                    $_SESSION['IdPersona']=$nombres['IdPersona'];
+                    $_SESSION['IdCliente']=$nombres['IdCliente'];
                     $_SESSION['nombre'] = $nombres['Nombre'];
                     $_SESSION['apellido'] = $nombres['Apellido'];
                     $_SESSION['foto'] = $nombres['Foto'];

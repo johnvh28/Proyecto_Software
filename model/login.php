@@ -3,6 +3,7 @@ require 'vendor/autoload.php';
 
 use UAParser\Parser;
 
+
 class Login_Model
 {
     private $db;
@@ -89,10 +90,10 @@ class Login_Model
         $Empleado = "SELECT id,cod_trabajador FROM empleado WHERE id_persona = $id_persona";
         $ResultadoEmpleado = $this->db->query($Empleado);
         $fila = $ResultadoEmpleado->fetch_assoc();
-        $IdEmpleado=$fila['id'];
+        $IdEmpleado = $fila['id'];
         $Codigo = $fila["cod_trabajador"];
 
-        return array("Nombre" => $Nombre, "Apellido" => $Apellido, "Foto" => $Foto, "Codigo" => $Codigo,"IdEmpleado"=>$IdEmpleado);
+        return array("Nombre" => $Nombre, "Apellido" => $Apellido, "Foto" => $Foto, "Codigo" => $Codigo, "IdEmpleado" => $IdEmpleado);
     }
     public function datosUsuariosclientes($Id)
     {
@@ -104,9 +105,10 @@ class Login_Model
         /**
          * Nombre y foto de la tabla persona
          */
-        $Persona = "SELECT nombre, foto FROM persona WHERE id=$id_persona ";
+        $Persona = "SELECT id,nombre, foto FROM persona WHERE id=$id_persona ";
         $ResultadoPersona = $this->db->query($Persona);
         $fila = $ResultadoPersona->fetch_assoc();
+        $Idpersona = $fila['id'];
         $Nombre = $fila['nombre'];
         $Foto  = $fila['foto'];
         /**
@@ -119,9 +121,12 @@ class Login_Model
         /**
          * codigo empleado desde la tabla empleado
          */
-      
+        $Cliente = "SELECT id FROM cliente WHERE id_persona= $id_persona";
+        $ResultadoCliente = $this->db->query($Cliente);
+        $fila=$ResultadoCliente->fetch_assoc();
+        $IdCliente=$fila['id'];
 
-        return array("Nombre" => $Nombre, "Apellido" => $Apellido, "Foto" => $Foto);
+        return array("Nombre" => $Nombre, "Apellido" => $Apellido, "Foto" => $Foto, "IdPersona" => $Idpersona,"IdCliente"=>$IdCliente);
     }
     public function ObtenerPrivilegio($Id)
     {

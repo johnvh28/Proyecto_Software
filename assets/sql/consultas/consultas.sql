@@ -15,9 +15,16 @@ LEFT JOIN usuario U ON r.id = U.id_rol
 LEFT JOIN usuario US ON pr.autorizacion = US.id
 WHERE u.id = 1;     
 
-
+SELECT pm.id AS id_permiso_modulo, m.id AS id_modulo, m.nombre AS nombre_modulo, p.id AS id_permiso, p.nombre AS nombre_permiso, p.descripcion AS descripcion_permiso
+              FROM modulo m
+              INNER JOIN permiso_modulo pm ON m.id = pm.id_modulo
+              INNER JOIN permiso p ON pm.id_permiso = p.id
+              WHERE m.estado = 1
 
 SELECT * FROM detalle_usuario;
+
+
+SELECT * FROM privilegio_permiso_rol
 
 
 
@@ -113,21 +120,111 @@ LEFT JOIN subcategorias sc ON p.subcategoria_id =p.id
 LEFT JOIN producto_color pc ON p.id =pc.id_producto
 LEFT JOIN producto_manga pm ON p.id = pm.id_producto
 LEFT JOIN producto_talla pt ON p.id = pt.id_producto
-LEFT JOIN color c ON pc.id_color = c.id
-LEFT JOIN manga m ON pm.id_manga = m.id
-LEFT JOIN tallas t ON pt.id_talla = t.id
+LEFT JOIN color c ON pc.id_color = pc.id_color
+
+SELECT * FROM permiso;
+
+SELECT * FROM modulo;
 
 
-SELECT  p.*, sc.nombre AS sub, c.nombre AS categoria, pp.precio_venta AS precio FROM productos p 
-INNER JOIN subcategorias sc ON sc.id = p.subcategoria_id
-INNER JOIN categorias c ON sc.categoria_id = sc.id
-LEFT JOIN precios_productos pp ON p.id = pp.producto_id
+INSERT INTO permiso_modulo (id,id_modulo, id_permiso)
+VALUES
+(1,2, 1), (2,2, 2), (3,2, 3), (4,2, 4),
+(5,3, 1), (6,3, 2), (7,3, 3),(8,3, 5),
+(9,4, 1), (10,4, 2), (11,4, 3),(12,4, 4),
+(13,5, 1), (14,5, 2), (15,5, 3),(16,5, 5),
+(17,6, 1), (18,6, 2), (19,6, 3),
+(20,7, 1), (21,7, 2), (22,7, 3),(23,7, 4),(24,7,5),
+(25,8, 1), (26,8, 5), (27,8, 6), (28,8, 7),
+(29,8, 8), (30,8, 9), (31,9, 2), (32,9, 3),(33,9,4),(34,9,10);
+
+
+SELECT * FROM permiso_modulo
 
 
 
-SELECT DISTINCT p.*, sc.nombre AS sub, c.nombre AS categoria, pp.precio_venta AS precio
+SELECT u.usuario AS autorizado, r.id AS id_usuario,r.nombre,GROUP_CONCAT(CONCAT(m.nombre, ' - ', per.nombre) ORDER BY m.nombre SEPARATOR ', ') AS usuario_modulos_submodulos, r.estado AS rol_estado,   
+        COUNT(DISTINCT pu.id_permiso) AS cantidad_permisos
+        FROM privilegio_permiso_rol pu 
+        JOIN permiso_modulo sm ON sm.id = pu.id_permiso
+        JOIN permiso per ON per.id = sm.id_permiso
+        JOIN modulo m ON m.id = sm.id_modulo 
+        JOIN usuario u ON u.id = pu.autorizacion
+        JOIN rol r ON r.id = pu.id_usuario
+        GROUP BY r.nombre
+
+
+SELECT pm.id AS id_permiso_modulo, m.id AS id_modulo, m.nombre AS nombre_modulo, p.id AS id_permiso, p.nombre AS nombre_permiso, p.descripcion AS descripcion_permiso
+              FROM modulo m
+              INNER JOIN permiso_modulo pm ON m.id = pm.id_modulo
+              INNER JOIN permiso p ON pm.id_permiso = p.id
+              WHERE m.estado = 1  NOT IN (SELECT pp.id_permiso FROM privilegio_permiso_rol pp WHERE 
+                    pp.id_usuario =1)
+
+
+SELECT m.id AS modulo_id, m.nombre AS modulo_nombre, 
+                        sm.id AS submodulo_id, sm.nombre AS submodulo_nombre
+            FROM modulo m 
+            LEFT JOIN sub_modulo sm ON m.id = sm.id_modulo
+            WHERE sm.id NOT IN (SELECT pu.id_sub_modulo FROM privilegio_rol pu WHERE 
+                    pu.id_usuario = 1)
+
+
+SELECT pm.id AS id_permiso_modulo, m.id AS id_modulo, m.nombre AS nombre_modulo, p.id AS id_permiso, p.nombre AS nombre_permiso, p.descripcion AS descripcion_permiso
+              FROM modulo m
+              INNER JOIN permiso_modulo pm ON m.id = pm.id_modulo
+              INNER JOIN permiso p ON pm.id_permiso = p.id
+              WHERE m.estado = 1 IN (SELECT id_permiso FROM privilegio_permiso_rol pp WHERE 
+                    pp.id_usuario = 1)
+
+
+INSERT INTO sub_modulo(id, id_modulo, nombre, descripcion, enlace, estado)
+ VALUES (43,8,'Configuracion','Modulo de caja','index.php?c=caja&a=configuracion',1);
+
+SELECT 
+        pu.id AS privilegio_id,
+        m.id AS modulo_id,
+        m.nombre AS modulo_nombre,
+        sm.id AS submodulo_id,
+        sm.nombre AS submodulo_nombre
+        FROM 
+        privilegio_rol pu
+        INNER JOIN 
+        sub_modulo sm ON pu.id_sub_modulo = sm.id
+        LEFT JOIN 
+        modulo m ON sm.id_modulo = m.id
+        WHERE 
+        pu.id_usuario = 1
+        ORDER BY
+        privilegio_id, modulo_id, submodulo_id;
+  
+        
+SELECT pp.id AS id_permiso_modulo, m.id AS id_modulo, m.nombre AS nombre_modulo, p.id AS id_permiso, p.nombre AS nombre_permiso, p.descripcion AS descripcion_permiso
+FROM privilegio_permiso_rol pp
+INNER JOIN permiso_modulo pm ON pp.id_permiso = pm.id_permiso
+INNER JOIN modulo m ON m.id = pm.id_modulo
+INNER JOIN permiso p ON p.id = pm.id_permiso
+WHERE pp.id_usuario = 1
+ORDER BY id_modulo;
+
+SELECT  p.*, sc.nombre AS sub, c.nombre AS categoria, pp.precio_venta AS precio 
 FROM productos p 
 INNER JOIN subcategorias sc ON sc.id = p.subcategoria_id
-INNER JOIN categorias c ON sc.categoria_id = c.id
-LEFT JOIN precios_productos pp ON p.id = pp.producto_id
-WHERE p.estado = 1;
+INNER JOIN categorias c ON sc.categoria_id = sc.id
+INNER JOIN precios_productos pp ON p.id = pp.producto_id WHERE p.estado =1 
+
+
+SELECT p.nombre, pp.precio_venta AS precio FROM productos p
+JOIN precios_productos pp ON pp.producto_id = p.id 
+JOIN producto_color pt ON pt.id_producto =p.id
+WHERE p.estado = 1 AND pt.id_color = 1
+
+
+
+SELECT  pr.*, m.nombre AS municipio,d.nombre AS departamento,
+        m.id AS municipios
+        FROM persona p
+        LEFT JOIN puntos_referencia pr ON p.id_punto_referencia = pr.id
+        LEFT JOIN municipio m ON pr.cod_municipio = m.id
+        LEFT JOIN departamento d ON m.cod_departamento = d.id
+        Where p.id =2

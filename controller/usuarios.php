@@ -82,6 +82,8 @@ class UsuarioController
             header("Location:index.php?c=usuario&a=rol");
         }
     }
+
+
     /**
      * Usuarios
      */
@@ -195,27 +197,27 @@ class UsuarioController
         if ($_SERVER['REQUEST_METHOD'] === "POST") {
             $Usuario = new Usuarios_Model();
             $Id = $_POST["Id"];
-            $Id_rol=$_POST['rol'];
-            $autorizado=$_POST['autorizado'];
-            $Usuario->InsertarRolesTemporales($Id_rol,$Id,$autorizado);
+            $Id_rol = $_POST['rol'];
+            $autorizado = $_POST['autorizado'];
+            $Usuario->InsertarRolesTemporales($Id_rol, $Id, $autorizado);
             session_start();
             $_SESSION['tipo'] = "success";
             $_SESSION['mensaje'] = "Se ha asignado el rol temporal";
-            header("location: index.php?c=usuario&a=PrivilegiosUsuario&id=".$Id);
+            header("location: index.php?c=usuario&a=PrivilegiosUsuario&id=" . $Id);
         }
     }
     public function EliminarRoles()
     {
         if ($_SERVER['REQUEST_METHOD'] === "GET") {
-            $Id=$_GET['id'];
-            $usuario=$_GET['usuario'];
-            $Estado=$_GET['estado'];
+            $Id = $_GET['id'];
+            $usuario = $_GET['usuario'];
+            $Estado = $_GET['estado'];
             $Usuario = new Usuarios_Model();
-            $Usuario ->CambiarEstadoRolTemporal($Id,$Estado);
+            $Usuario->CambiarEstadoRolTemporal($Id, $Estado);
             session_start();
             $_SESSION['tipo'] = "success";
             $_SESSION['mensaje'] = "Se ha asignado el rol temporal";
-            header("location: index.php?c=usuario&a=PrivilegiosUsuario&id=". $usuario);
+            header("location: index.php?c=usuario&a=PrivilegiosUsuario&id=" . $usuario);
         }
     }
     /**
@@ -264,7 +266,7 @@ class UsuarioController
             $Usuario = new Usuarios_Model();
             $Rol = $_POST["rol"];
             $submodulo = $_POST['submodulos'];
-            $autorizado=$_POST['autorizado'];
+            $autorizado = $_POST['autorizado'];
             foreach ($submodulo as $moduloId => $submoduloIds) {
                 foreach ($submoduloIds as $id_submodulo) {
                     $Usuario->InsertarPrivilegioRol($id_submodulo, $Rol, $autorizado);
@@ -283,9 +285,9 @@ class UsuarioController
             $Rol = $_POST["rol"];
             $submodulos = $_POST['submodulos'];
             foreach ($submodulos as $moduloId => $submoduloIds) {
-              
+
                 foreach ($submoduloIds as $id_submodulo) {
-                
+
                     $Usuario->EliminarPrivilegiosRol($id_submodulo);
                 }
             }
@@ -295,7 +297,82 @@ class UsuarioController
             header("location: index.php?c=usuario&a=modulos");
         }
     }
-    
+    /***
+     * Permisos
+     */
+    public function permisos()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === "GET") {
+            $Usuario = new Usuarios_Model();
+            $Usuarios['usuarios'] = $Usuario->MostrarPermisos();
+            require_once 'view/Gestion_usuarios/Permisos/Permisos.php';
+        }
+    }
+    public function Asignarpermisos()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === "GET") {
+            $Usuario = new Usuarios_Model();
+            $Roles['roles'] = $Usuario->RolesPermisos();
+            $data["modulos"] = $Usuario->mostrarPermisosPorModulo();
+
+            require_once 'view/Gestion_usuarios/Permisos/AsignarPermisos.php';
+        }
+    }
+    public function actualizarpermisos()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === "GET") {
+            $Usuario = new Usuarios_Model();
+            $Id = $_GET['id'];
+            $Roles['roles'] = $Usuario->Roles();
+            $data["modulos"] = $Usuario->ObtenerPermisosFaltantes($Id);
+            require_once 'view/Gestion_usuarios/Permisos/ActualizarPermisos.php';
+        }
+    }
+    public function eliminarpermisos()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === "GET") {
+            $Usuario = new Usuarios_Model();
+            $Id = $_GET['id'];
+            $Roles['roles'] = $Usuario->Roles();
+            $data["modulos"] = $Usuario->EliminarPermisos($Id);
+            require_once 'view/Gestion_usuarios/Permisos/EliminarPermisos.php';
+        }
+    }
+    public function GuardarPermiso()
+    {
+        $Usuario = new Usuarios_Model();
+        $Rol = $_POST["rol"];
+        $submodulo = $_POST['submodulos'];
+        $autorizado = $_POST['autorizado'];
+        foreach ($submodulo as $moduloId => $submoduloIds) {
+            foreach ($submoduloIds as $id_submodulo) {
+                $Usuario->InsertarPrivilegioPermisoRol($id_submodulo, $Rol, $autorizado);
+            }
+        }
+        session_start();
+        $_SESSION['tipo'] = "success";
+        $_SESSION['mensaje'] = "Se ha registrados los privilegios de manera exitosa";
+        header("location: index.php?c=usuario&a=permisos");
+    }
+    public function EliminarPermiso()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === "POST") {
+            $Usuario = new Usuarios_Model();
+            $Rol = $_POST["rol"];
+            $submodulos = $_POST['submodulos'];
+            foreach ($submodulos as $moduloId => $submoduloIds) {
+
+                foreach ($submoduloIds as $id_submodulo) {
+
+                    $Usuario->EliminarPermisoRol($id_submodulo);
+                }
+            }
+            session_start();
+            $_SESSION['tipo'] = "success";
+            $_SESSION['mensaje'] = "Se ha desactivado los privilegios de manera exitosa";
+            header("location: index.php?c=usuario&a=permisos");
+        }
+    }
     /**
      * Monitoreo
      */

@@ -25,9 +25,6 @@
                         <div class="card card-primary card-tabs">
                             <div class="card-header p-0 pt-1">
                                 <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
-
-
-
                                     <li class="nav-item">
                                         <a class="nav-link active" id="custom-tabs-one-home-tab" data-toggle="pill" href="#custom-tabs-one-home" role="tab" aria-controls="custom-tabs-one-home" aria-selected="true">Lista de apertura</a>
                                     </li>
@@ -37,9 +34,6 @@
                                     <li class="nav-item">
                                         <a class="nav-link" id="custom-tabs-one-messages-tab" data-toggle="pill" href="#custom-tabs-one-messages" role="tab" aria-controls="custom-tabs-one-messages" aria-selected="false">Gestion de apertura</a>
                                     </li>
-
-                                    </li>
-
 
                                 </ul>
                             </div>
@@ -137,77 +131,84 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane fade" id="custom-tabs-one-profile" role="tabpanel" aria-labelledby="custom-tabs-one-profile-tab">
-                                        <div class="pd-20">
-                                            <div class="row clearfix">
-                                                <?php foreach ($caja["caja"] as $producto) : ?>
-                                                    <div class="col-md-4 col-sm-12 mb-30">
-                                                        <div class="pd-20 card-box height-100-p">
-                                                            <h5 class="h4">Cajas</h5>
+
+                                        <div class="row clearfix">
+                                            <?php foreach ($caja["caja"] as $producto) : ?>
+                                                <div class="col-md-4 col-sm-12 mb-30">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title">Caja:</h5>
+
                                                             <a href="#" class="btn-block" data-toggle="modal" data-target="#modal-<?php echo $producto['caja_id']; ?>" type="button">
                                                                 <?php echo $producto['tipo_caja_nombre']; ?>
                                                             </a>
-                                                            <div class="modal fade bs-example-modal-lg" id="modal-<?php echo $producto['caja_id']; ?>" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-                                                                <div class="modal-dialog modal-lg modal-dialog-centered">
-                                                                    <div class="modal-content">
-                                                                        <div class="modal-header">
-                                                                            <h4 class="modal-title" id="myLargeModalLabel" style="font: bold 16px Arial, sans-serif;">
-                                                                                Solicitud de caja
-                                                                            </h4>
-                                                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-                                                                                ×
-                                                                            </button>
-                                                                        </div>
-                                                                        <div class="modal-body">
-                                                                            <label for="" style="font: bold 16px Arial, sans-serif;">Caja:</label>
-                                                                            <?php echo $producto['tipo_caja_nombre']; ?>
-                                                                            <br>
-                                                                            <label for="" style="font: bold 16px Arial, sans-serif;">Nombre:</label>
-                                                                            <?php echo $producto['NOMBRE_CAJA']; ?>
-                                                                            <br>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal fade bs-example-modal-lg" id="modal-<?php echo $producto['caja_id']; ?>" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h4 class="modal-title" id="myLargeModalLabel" style="font: bold 16px Arial, sans-serif;">
+                                                                        Solicitud de caja
+                                                                    </h4>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                                                        ×
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <label for="" style="font: bold 16px Arial, sans-serif;">Caja:</label>
+                                                                    <?php echo $producto['tipo_caja_nombre']; ?>
+                                                                    <br>
+                                                                    <label for="" style="font: bold 16px Arial, sans-serif;">Nombre:</label>
+                                                                    <?php echo $producto['NOMBRE_CAJA']; ?>
+                                                                    <br>
 
-                                                                            <label for="" style="font: bold 16px Arial, sans-serif;">Dia que se
-                                                                                registro:</label>
-                                                                            <?php echo $producto['caja_fecha_registro']; ?>
-                                                                        </div>
-                                                                        <div class="modal-footer">
-                                                                            <?php if ($producto["caja_estado"] == 1) : ?>
-                                                                                <a type="button" style="font: bold 16px Arial, sans-serif; color:white;" href="index.php?c=caja&a=crear_apertura&id=<?php echo $producto['caja_id']; ?>" class="btn btn-primary">
-                                                                                    Solicitar apertura
-                                                                                </a>
-                                                                            <?php elseif ($producto["caja_estado"] == 2) : ?>
-                                                                                <?php foreach ($data['apertura'] as $row) { ?>
-                                                                                    <?php if (empty($row['monto_cordobas']) && empty($row['monto_dolares'])) : ?>
-                                                                                        <a type="button" style="font: bold 16px Arial, sans-serif; color:white;" href="index.php?c=caja&a=asignar_montos&id=<?php echo $row['id']; ?>" class="btn btn-success">
-                                                                                            Registrar montos
-                                                                                        </a>
-                                                                                    <?php endif; ?>
-
-                                                                                <?php } ?>
-                                                                            <?php elseif ($producto["caja_estado"] == 3) : ?>
-                                                                                <a type="button" style="font: bold 16px Arial, sans-serif; color:white;" href="" class="btn btn-danger">
-                                                                                    Tu solicitud ha sido rechazada
+                                                                    <label for="" style="font: bold 16px Arial, sans-serif;">Dia que se
+                                                                        registro:</label>
+                                                                    <?php echo $producto['caja_fecha_registro']; ?>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <?php if ($producto["caja_estado"] == 1) : ?>
+                                                                        <a type="button" style="font: bold 16px Arial, sans-serif; color:white;" href="index.php?c=caja&a=crear_apertura&id=<?php echo $producto['caja_id']; ?>" class="btn btn-primary">
+                                                                            Solicitar apertura
+                                                                        </a>
+                                                                    <?php elseif ($producto["caja_estado"] == 2) : ?>
+                                                                        <?php foreach ($data['apertura'] as $row) { ?>
+                                                                            <?php if (empty($row['monto_cordobas']) && empty($row['monto_dolares'])) : ?>
+                                                                                <a type="button" style="font: bold 16px Arial, sans-serif; color:white;" href="index.php?c=caja&a=asignar_montos&id=<?php echo $row['id']; ?>" class="btn btn-success">
+                                                                                    Registrar montos
                                                                                 </a>
                                                                             <?php endif; ?>
-                                                                        </div>
-                                                                    </div>
+
+                                                                        <?php } ?>
+                                                                    <?php elseif ($producto["caja_estado"] == 3) : ?>
+                                                                        <a type="button" style="font: bold 16px Arial, sans-serif; color:white;" href="" class="btn btn-danger">
+                                                                            Tu solicitud ha sido rechazada
+                                                                        </a>
+                                                                    <?php endif; ?>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                <?php endforeach; ?>
-                                            </div>
+                                                </div>
+                                            <?php endforeach; ?>
                                         </div>
-
                                     </div>
-                                    <div class="tab-pane fade" id="custom-tabs-one-messages" role="tabpanel" aria-labelledby="custom-tabs-one-messages-tab">
+
+
+                                    <div class="tab-pane fade" id="custom-tabs-one-messages" role="tabpanel" aria-labelledby="custom-tabs-one-messages">
                                         <div class="row clearfix">
                                             <?php foreach ($aperturar['solicitud'] as $apertura) : ?>
                                                 <div class="col-md-4 col-sm-12 mb-30">
                                                     <div class="pd-20 card-box height-100-p">
-                                                        <h5 class="h4">Solicitud de apertura</h5>
-                                                        <a href="#" class="btn-block" data-toggle="modal" data-target="#modal-apertura-<?php echo $apertura['id']; ?>" type="button">
-                                                            <?php echo $apertura['tipo_caja']; ?>
-                                                        </a>
+                                                        <div class="card">
+                                                            <div class="card-body">
+                                                                <h5 class="card-title">Solicitud de apertura</h5>
+                                                                <a href="#" class="btn-block" data-toggle="modal" data-target="#modal-apertura-<?php echo $apertura['id']; ?>" type="button">
+                                                                    <?php echo $apertura['tipo_caja']; ?>
+                                                                </a>
+                                                            </div>
+                                                        </div>
                                                         <div class="modal fade bs-example-modal-lg" id="modal-apertura-<?php echo $apertura['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog modal-lg modal-dialog-centered">
                                                                 <div class="modal-content">
@@ -242,7 +243,6 @@
                                                                                 <?php endforeach; ?>
                                                                             </div>
                                                                         </div>
-
                                                                     </div>
                                                                     <div class="modal-footer">
                                                                         <?php if ($apertura["estado"] == 1) : ?>
@@ -253,7 +253,6 @@
                                                                                 Rechazar solicitud
                                                                             </a>
                                                                         <?php endif; ?>
-
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -270,7 +269,6 @@
                 </div>
             </div>
         </div>
-</div>
-</section>
+    </section>
 </div>
 <?php require_once "view/include/footer_admin.php"; ?>
